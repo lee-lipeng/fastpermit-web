@@ -1,0 +1,29 @@
+// src/styles/index.scss
+
+// 引入样式重置
+@import "./reset.css";
+
+// 引入全局变量
+// @import './variables.scss';
+
+// 引入 Element Plus 变量覆盖 (如果需要)
+// @import './element-variables.scss';
+
+// 引入混合
+// @import './mixins.scss';
+
+// 其他全局样式
+body {
+  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB",
+    "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 14px; // 基础字号
+}
+
+// 一些 Element Plus 组件的全局样式调整（可选）
+.el-menu {
+  border-right: none !important; // 示例：移除菜单右边框
+}
+
+// ... 其他全局样式或覆盖
