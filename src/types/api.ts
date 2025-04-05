@@ -74,3 +74,41 @@ export interface UserInfoUpdateRequest {
   // is_active?: boolean; // 通常不由用户自己改
   // role_ids?: number[]; // 通常不由用户自己改
 }
+
+// 通用分页响应结构 (确认与后端返回匹配或调整)
+export interface PaginatedResponse<T> {
+  items: T[]; // 确认后端返回的是 'items'
+  total: number; // 确认后端返回的是 'total'
+  // 可以移除 page 和 limit，因为它们是请求参数，不是响应的一部分
+  // page: number;
+  // limit: number;
+}
+
+// 获取用户列表请求参数类型 (保持 page 和 limit)
+export interface UserListRequestParams {
+  username?: string;
+  phone?: string;
+  page?: number; // 前端使用 page
+  limit?: number; // 前端使用 limit
+}
+
+// 创建用户请求体类型 (对应后端 UserCreate)
+export interface UserCreateRequest {
+  username: string;
+  password?: string; // 注意：后端 schema 密码是必填的，但这里前端可能先不要求，由后端校验
+  email?: string | null;
+  phone?: string | null;
+  is_active?: boolean;
+  role_ids?: number[];
+}
+
+// 更新用户信息请求体类型 (对应后端 UserUpdate，用于管理员更新用户)
+// 注意区别于 UserInfoUpdateRequest (用于用户更新自己)
+export interface UserUpdateRequest {
+  username?: string;
+  password?: string; // 允许管理员重置密码
+  email?: string | null;
+  phone?: string | null;
+  is_active?: boolean;
+  role_ids?: number[] | null; // 允许清空角色
+}
