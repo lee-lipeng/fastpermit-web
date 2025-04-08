@@ -16,7 +16,10 @@ export interface UserInfo {
 export interface RoleInfo {
   id: number;
   name: string;
-  // description?: string; // 可选字段
+  description?: string | null;
+  is_default?: boolean;
+  created_at?: string;
+  updated_at?: string;
 }
 
 // /api/v1/auth/my-permissions 接口响应类型
@@ -44,19 +47,14 @@ export interface LoginResponse {
   message?: string; // 可选的错误信息
 }
 
-// 可选：通用的 API 响应结构 (如果后端所有接口都遵循此结构)
-// export interface ApiResponse<T = any> {
-//   code: number;
-//   message: string | null;
-//   details: any; // 或者更具体的类型
-//   data: T; // 假设成功时数据在 data 字段
-// }
-
 // 资源类型接口响应 (/api/v1/permissions/resources)
 export interface ResourceType {
   id: number;
   code: string;
   name: string;
+  is_system: boolean;
+  created_at: string; // 添加创建时间
+  updated_at: string; // 添加更新时间
 }
 
 // 操作类型接口响应 (/api/v1/permissions/actions)
@@ -64,6 +62,74 @@ export interface ActionType {
   id: number;
   code: string;
   name: string;
+  is_system: boolean;
+  created_at: string; // 添加创建时间
+  updated_at: string; // 添加更新时间
+}
+
+// 权限信息类型 (GET /permissions 返回)
+export interface Permission {
+  id: number;
+  name: string; // name 字段保留用于显示，但编辑/创建时不传入
+  description?: string | null;
+  resource_type?: ResourceType;
+  action_type?: ActionType;
+  resource_type_id: number;
+  action_type_id: number;
+  created_at: string; // 添加创建时间
+  updated_at: string; // 添加更新时间
+}
+
+// 权限创建请求体 (POST /permissions) - 移除 name
+export interface PermissionCreateRequest {
+  // name: string; // name 由后端根据 resource 和 action 生成，无需传入
+  description?: string | null;
+  resource_type_id: number;
+  action_type_id: number;
+}
+
+// 权限更新请求体 (PUT /permissions/{permission_id}) - 移除 name
+export interface PermissionUpdateRequest {
+  // name?: string; // name 通常不允许修改，或由后端同步
+  description?: string | null;
+  resource_type_id?: number;
+  action_type_id?: number;
+}
+
+// 获取权限列表请求参数类型
+export interface PermissionListRequestParams {
+  resource_type_id?: number;
+  action_type_id?: number;
+  page?: number;
+  limit?: number;
+}
+
+// 资源类型创建请求体 (POST /resource-types)
+export interface ResourceTypeCreateRequest {
+  code: string;
+  name: string;
+  // is_system 后端默认为 false，前端无需传递或可选
+}
+
+// 资源类型更新请求体 (PUT /resource-types/{resource_type_id})
+export interface ResourceTypeUpdateRequest {
+  code?: string;
+  name?: string;
+  is_system?: boolean; // is_system 通常不允许直接修改，但保留以防万一
+}
+
+// 操作类型创建请求体 (POST /action-types)
+export interface ActionTypeCreateRequest {
+  code: string;
+  name: string;
+  // is_system 后端默认为 false
+}
+
+// 操作类型更新请求体 (PUT /action-types/{action_type_id})
+export interface ActionTypeUpdateRequest {
+  code?: string;
+  name?: string;
+  is_system?: boolean; // is_system 通常不允许直接修改
 }
 
 // PUT /api/v1/users/me 请求体类型
@@ -79,9 +145,6 @@ export interface UserInfoUpdateRequest {
 export interface PaginatedResponse<T> {
   items: T[]; // 确认后端返回的是 'items'
   total: number; // 确认后端返回的是 'total'
-  // 可以移除 page 和 limit，因为它们是请求参数，不是响应的一部分
-  // page: number;
-  // limit: number;
 }
 
 // 获取用户列表请求参数类型 (保持 page 和 limit)
@@ -111,4 +174,20 @@ export interface UserUpdateRequest {
   phone?: string | null;
   is_active?: boolean;
   role_ids?: number[] | null; // 允许清空角色
+}
+
+// 角色创建请求体
+export interface RoleCreateRequest {
+  name: string;
+  description?: string | null;
+  is_default?: boolean;
+  permission_ids?: number[];
+}
+
+// 角色更新请求体
+export interface RoleUpdateRequest {
+  name?: string;
+  description?: string | null;
+  is_default?: boolean;
+  // 注意：更新角色权限通常使用单独的接口，而不是在更新角色信息时一起处理
 }
