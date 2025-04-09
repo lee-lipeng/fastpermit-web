@@ -25,6 +25,16 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import("@/views/Dashboard.vue"),
         meta: { title: "首页" }, // 添加 meta title
       },
+      // --- 个人中心 ---
+      {
+        path: "profile/:id",
+        name: "Profile",
+        component: () => import("@/views/profile/UserProfile.vue"),
+        meta: {
+          title: "个人中心",
+          requiresAuth: true,
+        },
+      },
       // --- 系统管理 ---
       {
         path: "system/users",
@@ -50,7 +60,7 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "system/permissions/list",
         name: "PermissionList",
-        component: () => import("@/views/system/permission/PermissionList.vue"), // 需要创建组件
+        component: () => import("@/views/system/PermissionList.vue"), // 需要创建组件
         meta: {
           title: "权限列表",
           requiresAuth: true,
@@ -60,8 +70,7 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "system/permissions/resources",
         name: "ResourceTypeManagement",
-        component: () =>
-          import("@/views/system/permission/ResourceTypeManagement.vue"), // 需要创建组件
+        component: () => import("@/views/system/ResourceTypeManagement.vue"), // 需要创建组件
         meta: {
           title: "资源类型管理",
           requiresAuth: true,
@@ -71,8 +80,7 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "system/permissions/actions",
         name: "ActionTypeManagement",
-        component: () =>
-          import("@/views/system/permission/ActionTypeManagement.vue"), // 需要创建组件
+        component: () => import("@/views/system/ActionTypeManagement.vue"), // 需要创建组件
         meta: {
           title: "操作类型管理",
           requiresAuth: true,
@@ -82,8 +90,15 @@ const routes: Array<RouteRecordRaw> = [
       // --- 其他系统管理路由 ---
     ],
   },
-  // 可以添加 404 页面路由
-  // { path: '/:pathMatch(.*)*', name: 'NotFound', component: () => import('@/views/NotFound.vue') }
+  // 添加 404 页面路由
+  {
+    path: "/:pathMatch(.*)*",
+    name: "NotFound",
+    component: () => import("@/views/NotFound.vue"),
+    meta: {
+      title: "404 - 页面未找到",
+    },
+  },
 ];
 
 // 创建 router 实例
