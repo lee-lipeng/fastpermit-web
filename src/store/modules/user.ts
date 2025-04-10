@@ -2,7 +2,14 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 // import { login as loginApi, getUserInfo as getUserInfoApi } from '@/api/user' // 稍后创建 API 调用函数
 // import type { LoginRequest } from '@/types/api' // 稍后创建类型定义
-import { setToken, getToken, removeToken } from "@/utils/auth"; // 稍后创建 Token 工具函数
+import {
+  setToken,
+  getToken,
+  removeToken,
+  setRememberMe,
+  getRememberMe,
+  removeRememberMe,
+} from "@/utils/auth"; // 导入Token和记住我的工具函数
 import {
   login as loginApi,
   getUserInfo as getUserInfoApi,
@@ -18,6 +25,7 @@ export const useUserStore = defineStore("user", () => {
   const roles = ref<RoleInfo[]>([]); // 新增：存储角色信息
   const permissions = ref<string[]>([]); // 用户权限列表 ('resource:action')
   const isSuperAdmin = ref<boolean>(false); // 新增：标识是否为超级管理员
+  const rememberMe = ref<boolean>(getRememberMe()); // 记住我状态
 
   // 计算属性 (Getters) - Pinia v2 中不再有单独的 getters，直接用 ref 或 computed
 
@@ -25,9 +33,9 @@ export const useUserStore = defineStore("user", () => {
   /**
    * 用户登录
    * @param loginData 登录信息
+   * @param remember 是否记住我
    */
-  async function login(loginData: LoginRequest) {
-    console.log("Store: 调用登录 Action", loginData);
+  async function login(loginData: LoginRequest, remember: boolean = false) {
     try {
       const response = await loginApi(loginData); // 调用 API, 拦截器会处理非200status
 
@@ -36,7 +44,11 @@ export const useUserStore = defineStore("user", () => {
         const receivedToken = response.access_token;
         setToken(receivedToken);
         token.value = receivedToken;
-        console.log("Store: 登录成功，Token 已设置");
+
+        // 保存记住我状态
+        rememberMe.value = remember;
+        setRememberMe(remember);
+
         // 登录成功后立即获取用户信息和权限
         await fetchUserInfoAndPermissions();
       } else {
@@ -137,11 +149,13 @@ export const useUserStore = defineStore("user", () => {
     console.log("Store: 调用退出登录 Action");
     // TODO: 调用后端退出登录接口（如果需要）
     removeToken(); // 移除 Token
+    removeRememberMe(); // 移除记住我状态
     token.value = null;
     userInfo.value = null;
     roles.value = []; // 清空角色
     permissions.value = []; // 清空权限
     isSuperAdmin.value = false; // 重置超级管理员状态
+    rememberMe.value = false; // 重置记住我状态
     console.log("Store: 退出登录成功，状态已重置");
   }
 
@@ -184,6 +198,7 @@ export const useUserStore = defineStore("user", () => {
     roles, // 导出角色信息
     permissions,
     isSuperAdmin, // 导出超级管理员状态
+    rememberMe, // 导出记住我状态
     login,
     // getUserInfo, // 不再需要单独导出旧的 getUserInfo
     fetchUserInfoAndPermissions, // 导出新的合并方法
